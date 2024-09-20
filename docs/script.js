@@ -14,6 +14,9 @@ let pulseShieldUsed = false; // Track if the Pulse Shield has been used
 let blackjackType = ""; // Track if it's a 2-card or 3-card blackjack
 let doubleDownUsed = false; // Track if double down is used
 
+// Player balance starts with $5000
+let playerBalance = 5000;
+
 function createDeck() {
   const suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
   const values = [
@@ -75,6 +78,19 @@ function calculateScore(hand) {
 }
 
 function startGame() {
+  // Ensure player has enough balance to place bets
+  mainBet = parseInt(document.getElementById("main-bet").value);
+  triggerBet = parseInt(document.getElementById("trigger-bet").value);
+  sideBet = parseInt(document.getElementById("side-bet").value);
+  progressiveBet = parseInt(document.getElementById("progressive-bet").value); // Get the Progressive Bet
+
+  let totalBet = mainBet + triggerBet + sideBet + progressiveBet;
+
+  if (totalBet > playerBalance) {
+    alert("You don't have enough balance to place this bet.");
+    return;
+  }
+
   resetButtons(); // Reset buttons before dealing a new round
   resetBoard(); // Reset the board for the new round
   deck = createDeck();
@@ -86,11 +102,6 @@ function startGame() {
   playerScore = calculateScore(playerHand);
   dealerScore = calculateScore(dealerHand);
 
-  mainBet = parseInt(document.getElementById("main-bet").value);
-  triggerBet = parseInt(document.getElementById("trigger-bet").value);
-  sideBet = parseInt(document.getElementById("side-bet").value);
-  progressiveBet = parseInt(document.getElementById("progressive-bet").value); // Get the Progressive Bet
-
   sideBetWon = checkSideBet(); // Check if side bet condition is met
   progressiveWon = checkProgressive(); // Check if the player wins the progressive jackpot
   checkMultiplier(); // Check if the dealer's hand activates the multiplier
@@ -98,6 +109,10 @@ function startGame() {
 
   pulseShieldUsed = false; // Reset Pulse Shield usage
   doubleDownUsed = false; // Reset double down usage
+
+  // Deduct the total bet from the player's balance
+  playerBalance -= totalBet;
+  updateBalanceDisplay();
 
   // Check if Pulse Shield should be enabled after initial deal
   checkPulseShield();
@@ -133,6 +148,12 @@ function stand() {
 
 function doubleDown() {
   if (!doubleDownUsed) {
+    // Ensure player has enough balance to double down
+    if (mainBet > playerBalance) {
+      alert("You don't have enough balance to double down.");
+      return;
+    }
+
     mainBet *= 2; // Double the player's main bet
     alert(`You doubled your bet to $${mainBet}.`);
 
@@ -317,6 +338,10 @@ function calculatePayouts(playerWins) {
       totalPayout += progressiveBet * 100; // Simulating the full jackpot payout
       alert("Congratulations! You won the Pulse Vault Progressive Jackpot!");
     }
+
+    // Add the total winnings to the player's balance
+    playerBalance += totalPayout;
+    updateBalanceDisplay();
   }
 
   // Show total payout to the player
@@ -342,6 +367,11 @@ function resetBoard() {
   document.getElementById("dealer-cards").innerText = "";
 }
 
+// Function to update the balance display on the screen
+function updateBalanceDisplay() {
+  document.getElementById("balance").innerText = `Balance: $${playerBalance}`;
+}
+
 function endGame(message, autoRestart) {
   document.getElementById("results").innerText = message;
   resetButtons();
@@ -357,6 +387,7 @@ function endGame(message, autoRestart) {
   }
 }
 
+// Attach event listeners after the DOM is loaded
 document.getElementById("deal").addEventListener("click", startGame);
 document.getElementById("hit").addEventListener("click", hit);
 document.getElementById("stand").addEventListener("click", stand);
@@ -364,3 +395,6 @@ document.getElementById("double-down").addEventListener("click", doubleDown); //
 document
   .getElementById("pulse-shield")
   .addEventListener("click", activatePulseShield); // Add event listener for Pulse Shield button
+
+// Initialize balance display
+updateBalanceDisplay();
