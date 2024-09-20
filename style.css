@@ -1,0 +1,37 @@
+body {
+  background-color: #2b2d42;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  text-align: center;
+}
+
+#game-board {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #8d99ae;
+  border-radius: 10px;
+}
+
+#controls button,
+#deal {
+  background-color: #ef233c;
+  border: none;
+  color: white;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#controls button:hover,
+#deal:hover {
+  background-color: #d90429;
+}
+
+input {
+  padding: 5px;
+  margin: 5px;
+}
